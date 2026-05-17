@@ -312,7 +312,7 @@ class PrefillBootstrapQueue:
                 self.scheduler.stream_output([req], req.return_logprob)
                 indices_to_remove.add(i)
                 failed_reqs.append(req)
-                if self.scheduler.enable_metrics:
+                if self.scheduler.metrics_reporter.enable_metrics:
                     self.scheduler.metrics_collector.increment_bootstrap_failed_reqs()
                 if self.scheduler.enable_hicache_storage:
                     # to release prefetch events associated with the request
@@ -588,6 +588,7 @@ class SchedulerDisaggregationPrefillMixin:
 
         can_run_cuda_graph = getattr(result, "can_run_cuda_graph", False)
         self.report_prefill_stats(
+            self.metrics_reporter,
             batch=batch,
             prefill_stats=batch.prefill_stats,
             can_run_cuda_graph=can_run_cuda_graph,
