@@ -1115,13 +1115,16 @@ class MiMoV2ForCausalLM(nn.Module):
                 pp_proxy_tensors=pp_proxy_tensors,
             )
         else:
-            hidden_states, hidden_states_before_norm = self.model(
+            result = self.model(
                 input_ids,
                 positions,
                 forward_batch,
                 input_embeds,
                 pp_proxy_tensors=pp_proxy_tensors,
             )
+            if not self.pp_group.is_last_rank:
+                return result
+            hidden_states, hidden_states_before_norm = result
 
         if self.pp_group.is_last_rank:
             return self.logits_processor(
